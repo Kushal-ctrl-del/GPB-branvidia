@@ -36,7 +36,7 @@ Source Repository: [https://github.com/Kushal-ctrl-del/GPB-branvidia](https://gi
 ### 2. RFC 7636 PKCE Implementation
 - **Code Verifier:** Generated using 32 cryptographically secure random bytes (`crypto.randomBytes(32)`), encoded as a 43-character `base64url` string.
 - **Code Challenge:** Generated via SHA-256 hash of the code verifier, `base64url`-encoded using method `S256`.
-- **Storage:** Code verifier is stored temporarily in a server-side `HttpOnly`, `SameSite=Lax`, `Secure` (in production) cookie (`oauth_code_verifier`) with a 15-minute expiration.
+- **Storage:** Code verifier is stored temporarily in an `HttpOnly`, `SameSite=Lax`, `Secure` (in production) cookie (`oauth_code_verifier`) with a 15-minute expiration.
 - **Validation:** Sent during the token exchange to `https://oauth2.googleapis.com/token`. Both PKCE and HMAC-signed CSRF state parameters are enforced.
 
 ### 3. Token Lifecycle & AES-256-GCM Session Encryption

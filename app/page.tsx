@@ -47,6 +47,7 @@ export default function HomePage() {
   const [connectedProfile, setConnectedProfile] = React.useState<NormalizedBusinessProfile | null>(null);
   const [reviews, setReviews] = React.useState<NormalizedReview[]>([]);
   const [media, setMedia] = React.useState<NormalizedMediaAsset[]>([]);
+  const [availableLocations, setAvailableLocations] = React.useState<{ locationId: string; title: string; address?: string }[]>([]);
 
   // Generated Report
   const [auditReport, setAuditReport] = React.useState<AIReportOutput | null>(null);
@@ -75,8 +76,14 @@ export default function HomePage() {
           setDataSource("live");
           setCurrentStep(5); // Advance to Step 5: Profile Ingestion Handshake
           setErrorMessage(null);
-          // Clean URL query params without reloading
           window.history.replaceState({}, "", window.location.pathname);
+          // Query available locations if account manages multiple GBP locations
+          fetch("/api/profile?mode=live&action=locations")
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.ok && Array.isArray(d.locations)) setAvailableLocations(d.locations);
+            })
+            .catch(() => {});
         })
         .catch((err: any) => {
           setErrorMessage(err.message || "Could not retrieve live Google profile.");
@@ -134,6 +141,27 @@ export default function HomePage() {
       setCurrentStep(5); // Advance to Step 5: Profile Ingestion Handshake
     } catch (err: any) {
       setErrorMessage(err.message || "Could not connect demo profile.");
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  // Switch Google Profile Location when account manages multiple GBP properties
+  const handleSwitchLocation = async (newLocationId: string) => {
+    setIsConnecting(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch(`/api/profile?mode=live&locationId=${encodeURIComponent(newLocationId)}`);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.message || "Failed to load selected Google location.");
+      }
+      const data = await res.json();
+      setConnectedProfile(data.profile);
+      setReviews(data.reviews || []);
+      setMedia(data.media || []);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Could not switch to selected location.");
     } finally {
       setIsConnecting(false);
     }
@@ -204,6 +232,7 @@ export default function HomePage() {
     setConnectedProfile(null);
     setReviews([]);
     setMedia([]);
+    setAvailableLocations([]);
     setAuditReport(null);
     setCurrentStep(4); // Return to connection options
   };
@@ -214,6 +243,7 @@ export default function HomePage() {
     setConnectedProfile(null);
     setReviews([]);
     setMedia([]);
+    setAvailableLocations([]);
     setAuditReport(null);
     setCurrentStep(2);
     setErrorMessage(null);
@@ -399,6 +429,8 @@ export default function HomePage() {
               photosCount={media.length}
               onProceedToAudit={() => setCurrentStep(6)}
               onDisconnect={handleDisconnect}
+              availableLocations={availableLocations}
+              onSwitchLocation={handleSwitchLocation}
             />
           ) : currentStep === 4 && confirmedBusiness ? (
             /* STEP 4: Explicit Customer Opt-In & Integration Modes */

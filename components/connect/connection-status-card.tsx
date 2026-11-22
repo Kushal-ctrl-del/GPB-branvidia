@@ -26,6 +26,8 @@ export interface ConnectionStatusCardProps {
   onProceedToAudit: () => void;
   onDisconnect: () => void;
   isLoading?: boolean;
+  availableLocations?: { locationId: string; title: string; address?: string }[];
+  onSwitchLocation?: (locationId: string) => void;
 }
 
 export function ConnectionStatusCard({
@@ -35,6 +37,8 @@ export function ConnectionStatusCard({
   onProceedToAudit,
   onDisconnect,
   isLoading = false,
+  availableLocations = [],
+  onSwitchLocation,
 }: ConnectionStatusCardProps) {
   const isLive = profile.dataSource === "LIVE_GOOGLE";
   const isCustomer = profile.dataSource === "CUSTOMER_PROVIDED";
@@ -117,6 +121,28 @@ export function ConnectionStatusCard({
           </div>
         </div>
 
+
+        {/* Location Selection Dropdown (When account manages multiple GBP locations) */}
+        {isLive && availableLocations.length > 1 && onSwitchLocation && (
+          <div className="p-3.5 bg-brand-50/50 rounded-xl border border-branvidia-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div>
+              <span className="font-semibold text-charcoal-900 block">Multiple Locations Detected ({availableLocations.length})</span>
+              <span className="text-charcoal-600 text-[11px]">Select which Google Business Profile location to audit:</span>
+            </div>
+            <select
+              value={profile.locationId}
+              onChange={(e) => onSwitchLocation(e.target.value)}
+              className="px-3 py-1.5 bg-white border border-paper-300 rounded-lg text-xs font-medium text-charcoal-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-branvidia-500 cursor-pointer"
+            >
+              {availableLocations.map((loc) => (
+                <option key={loc.locationId} value={loc.locationId}>
+                  {loc.title} {loc.address ? `(${loc.address})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Ingested Assets Summary Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
           <div className="p-3.5 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
@@ -156,6 +182,7 @@ export function ConnectionStatusCard({
             </p>
           </div>
         </div>
+
 
         {/* Profile Missing Fields Banner */}
         {profile.missingFields.length > 0 && (
