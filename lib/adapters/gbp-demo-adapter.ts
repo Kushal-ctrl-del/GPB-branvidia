@@ -911,7 +911,7 @@ export class DemoGoogleBusinessProfileAdapter implements GoogleBusinessProfilePr
     const calculatedResponseRate = totalReviews > 0 ? Number(((repliedCount / totalReviews) * 100).toFixed(1)) : 0;
 
     return {
-      dataSource: "VERIFIED_DEMO",
+      dataSource: "SIMULATED_DEMO",
       locationId: `loc_demo_${type}_01`,
       name: businessName, // STRICTLY PRESERVED CUSTOMER NAME
       primaryCategory: primaryCategory, // STRICTLY PRESERVED CUSTOMER CATEGORY
@@ -933,12 +933,19 @@ export class DemoGoogleBusinessProfileAdapter implements GoogleBusinessProfilePr
 
   async getReviews(): Promise<NormalizedReview[]> {
     const { data: fixture } = this.getFixture();
-    return fixture.reviews;
+    return fixture.reviews.map((r) => ({
+      ...r,
+      source: "SIMULATED_DEMO" as const,
+      isDemo: true,
+    }));
   }
 
   async getMedia(): Promise<NormalizedMediaAsset[]> {
     const { data: fixture } = this.getFixture();
-    return fixture.media;
+    return fixture.media.map((m) => ({
+      ...m,
+      source: "SIMULATED_DEMO" as const,
+    }));
   }
 
   async testConnection(): Promise<{ ok: boolean; message: string }> {

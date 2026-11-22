@@ -65,7 +65,7 @@ export function ReportHistoryModal({
                 Audit Report History
               </h3>
               <p className="text-xs text-charcoal-500">
-                Saved reports persisted across sessions in your browser storage.
+                Stored locally in browser storage (localStorage) • Device-bound
               </p>
             </div>
           </div>

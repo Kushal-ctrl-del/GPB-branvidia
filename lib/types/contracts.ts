@@ -159,7 +159,7 @@ export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 // =================================================================
 
 export const NormalizedProfileSchema = z.object({
-  dataSource: z.enum(["LIVE_GOOGLE", "VERIFIED_DEMO", "CUSTOMER_PROVIDED"]),
+  dataSource: z.enum(["LIVE_GOOGLE", "VERIFIED_DEMO", "CUSTOMER_PROVIDED", "SIMULATED_DEMO"]),
   locationId: z.string(),
   name: z.string(),
   primaryCategory: z.string(),

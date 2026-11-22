@@ -137,8 +137,11 @@ async function callGroqAnalysis(
     }
 
     // Defensive normalization of Groq output
-    // 1. Normalize problems dimension enums
+    // 1. Normalize problems dimension enums and clamp array length
     if (parsed.problemsIdentified?.problems && Array.isArray(parsed.problemsIdentified.problems)) {
+      if (parsed.problemsIdentified.problems.length > 15) {
+        parsed.problemsIdentified.problems = parsed.problemsIdentified.problems.slice(0, 15)
+      }
       for (const p of parsed.problemsIdentified.problems) {
         const dimStr = String(p.dimension || '').toLowerCase()
         if (dimStr.includes('reputation') || dimStr.includes('review')) {
@@ -157,18 +160,12 @@ async function callGroqAnalysis(
         }
       }
 
-      if (parsed.problemsIdentified.criticalCount == null) {
-        parsed.problemsIdentified.criticalCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'CRITICAL').length
-      }
-      if (parsed.problemsIdentified.warningCount == null) {
-        parsed.problemsIdentified.warningCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'WARNING').length
-      }
-      if (parsed.problemsIdentified.optimizationCount == null) {
-        parsed.problemsIdentified.optimizationCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'OPTIMIZATION').length
-      }
+      parsed.problemsIdentified.criticalCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'CRITICAL').length
+      parsed.problemsIdentified.warningCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'WARNING').length
+      parsed.problemsIdentified.optimizationCount = parsed.problemsIdentified.problems.filter((p: any) => p.severity === 'OPTIMIZATION').length
     }
 
-    // 2. Wrap optimizationSuggestions if bare array & normalize counts
+    // 2. Wrap optimizationSuggestions if bare array, clamp to max 10 & normalize counts
     if (Array.isArray(parsed.optimizationSuggestions)) {
       parsed.optimizationSuggestions = {
         suggestions: parsed.optimizationSuggestions,
@@ -176,6 +173,9 @@ async function callGroqAnalysis(
     }
 
     if (parsed.optimizationSuggestions?.suggestions && Array.isArray(parsed.optimizationSuggestions.suggestions)) {
+      if (parsed.optimizationSuggestions.suggestions.length > 10) {
+        parsed.optimizationSuggestions.suggestions = parsed.optimizationSuggestions.suggestions.slice(0, 10)
+      }
       for (const s of parsed.optimizationSuggestions.suggestions) {
         const prioStr = String(s.priority || '').toUpperCase()
         if (prioStr.includes('IMMED') || prioStr.includes('HIGH')) {
@@ -191,15 +191,9 @@ async function callGroqAnalysis(
         if (!['LOW', 'MEDIUM', 'HIGH'].includes(impStr)) s.estimatedImpact = 'HIGH'
       }
 
-      if (parsed.optimizationSuggestions.immediateActions == null) {
-        parsed.optimizationSuggestions.immediateActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'IMMEDIATE').length
-      }
-      if (parsed.optimizationSuggestions.shortTermActions == null) {
-        parsed.optimizationSuggestions.shortTermActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'SHORT_TERM').length
-      }
-      if (parsed.optimizationSuggestions.longTermActions == null) {
-        parsed.optimizationSuggestions.longTermActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'LONG_TERM').length
-      }
+      parsed.optimizationSuggestions.immediateActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'IMMEDIATE').length
+      parsed.optimizationSuggestions.shortTermActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'SHORT_TERM').length
+      parsed.optimizationSuggestions.longTermActions = parsed.optimizationSuggestions.suggestions.filter((s: any) => s.priority === 'LONG_TERM').length
     }
 
     // 3. Zero-review defensive guard
@@ -241,8 +235,11 @@ async function callGroqAnalysis(
       }
     }
 
-    // 3. Normalize nextSteps timeframe, priority, owner enums and length
+    // 3. Normalize nextSteps timeframe, priority, owner enums and clamp length
     if (parsed.nextSteps?.steps && Array.isArray(parsed.nextSteps.steps)) {
+      if (parsed.nextSteps.steps.length > 10) {
+        parsed.nextSteps.steps = parsed.nextSteps.steps.slice(0, 10)
+      }
       for (const s of parsed.nextSteps.steps) {
         const tfStr = String(s.timeframe || '').toUpperCase()
         if (tfStr.includes('WEEK') || tfStr.includes('DAY') || tfStr.includes('IMMED') || tfStr.includes('NOW')) {

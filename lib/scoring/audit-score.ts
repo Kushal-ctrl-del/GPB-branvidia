@@ -547,7 +547,7 @@ export function calculateAuditScore(input: ScoringInput): AuditScoreResult {
 
   const isReviewsUnavailable =
     input.isReviewDataUnavailable ||
-    (input.reviews.length === 0 && input.profile.dataSource !== 'VERIFIED_DEMO')
+    (input.reviews.length === 0 && input.profile.dataSource !== 'SIMULATED_DEMO' && input.profile.dataSource !== 'VERIFIED_DEMO')
 
   const completeness = scoreCompleteness(input.profile, factors)
   let reviewsReputation = 0

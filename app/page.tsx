@@ -230,7 +230,7 @@ export default function HomePage() {
     setAuditReport(entry.report);
     setDataSource(entry.dataSource);
     setConnectedProfile({
-      dataSource: entry.dataSource === "live" ? "LIVE_GOOGLE" : entry.dataSource === "customer" ? "CUSTOMER_PROVIDED" : "VERIFIED_DEMO",
+      dataSource: entry.dataSource === "live" ? "LIVE_GOOGLE" : entry.dataSource === "customer" ? "CUSTOMER_PROVIDED" : "SIMULATED_DEMO",
       locationId: `hist_${entry.id}`,
       name: entry.businessName,
       primaryCategory: entry.category,
